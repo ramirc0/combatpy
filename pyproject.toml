@@ -1,0 +1,28 @@
+[project]
+name = "combatpy"
+version = "0.1.0"
+description = "ComBat batch-effect correction for NumPy, ported from R's sva::ComBat"
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [
+    { name = "Christian Ramirez", email = "christian.ramirez1@umassmed.edu" }
+]
+requires-python = ">=3.12"
+dependencies = ["numpy>=2"]
+
+[dependency-groups]
+dev = ["fastexcel", "pandas", "polars", "pytest", "ruff"]
+
+[build-system]
+requires = ["uv_build>=0.13.4,<0.14.0"]
+build-backend = "uv_build"
+
+[tool.uv]
+exclude-newer = "7d"
+exclude-newer-package = { certifi = false }
+
+[tool.pytest.ini_options]
+addopts = ["--doctest-modules"]
+testpaths = ["src", "tests"]
+markers = ["paper: reproduces Chen et al. 2025 with data downloaded from Figshare"]
