@@ -8,6 +8,8 @@ combatpy removes known batch effects from a features × samples matrix of normal
 
 sva fails or returns NA for a feature that is missing from a whole batch, which is common in proteomics. combatpy keeps missing values in place. It returns features it cannot estimate unchanged and warns about them.
 
+The per-feature fits and the empirical Bayes updates run in numba kernels on one core. On a 50,000 × 96 matrix, one call takes about 0.1 s. numba compiles the kernels on the first call in a new environment, which takes about 3 s, and caches them on disk. Later sessions load them in about 0.3 s.
+
 The test suite reruns the protein-level ComBat analysis of Chen et al. (2025) on their Quartet and simulated proteomics data. It reproduces the paper's ComBat outputs and published SNR and CV values. It also pins baseline metrics for ComBat on those data, so later changes have a reference.
 
 ## Getting Started
@@ -16,14 +18,15 @@ The test suite reruns the protein-level ComBat analysis of Chen et al. (2025) on
 
 * Python 3.12 or later
 * NumPy 2 or later
+* numba 0.68 or later
 * pandas or polars, optional, to pass in and get back DataFrames
 
 ### Installing
 
-* Install from a local checkout:
+* Install from GitHub:
 
 ```sh
-uv add /path/to/combatpy
+uv add git+https://github.com/ramirc0/combatpy
 ```
 
 ### Executing program
@@ -61,6 +64,8 @@ Rscript scripts/sva_reference.R /path/to/sva-devel tests/data/sva
 * "N of M features cannot be estimated" lists features that are constant within a batch, have too few observed values in a batch, or cannot separate batch from covariate effects on their observed samples. They come back unchanged.
 * ComBat removes batch-level effects. Normalize per-sample loading differences first.
 * Integer-coded group labels count as numeric covariates. Pass strings to one-hot encode them.
+* A slow first call is numba compiling its kernels. numba caches them in `__pycache__` beside the package, or in a per-user cache directory when that is read-only. `NUMBA_CACHE_DIR` overrides both.
+* A NumPy result is Fortran-ordered. Call `np.ascontiguousarray` on it when code downstream needs C order.
 
 ```python
 help(combatpy.combat)
