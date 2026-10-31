@@ -363,9 +363,7 @@ def _estimable(values, batch_index, min_observed, patterns, pattern, gram):
     )
     unsure = enough & ~certain
     if unsure.any():
-        enough[unsure] = (
-            np.linalg.matrix_rank(gram[unsure], hermitian=True) == p
-        )
+        enough[unsure] = np.linalg.matrix_rank(gram[unsure], hermitian=True) == p
     order = np.argsort(batch_index, kind="stable")
     starts = np.concatenate(([0], np.cumsum(np.bincount(batch_index))))
     constant = _aligned_zeros(values.shape[1], bool)
@@ -576,7 +574,7 @@ def _standardize(
     p = beta.shape[0]
     # Zero-based row views: loops over range(lo, hi) ran 40% slower.
     for lo in range(0, n_features, _BLOCK):
-        hi = n_features if n_features < lo + _BLOCK else lo + _BLOCK
+        hi = n_features if n_features < lo + _BLOCK else lo + _BLOCK  # noqa: FURB136
         n_i, sum_i, sq_i = count[lo:hi], total[lo:hi], squares[lo:hi]
         # standardized holds the pooled samples' residuals until the last pass.
         for j in range(n_samples):
@@ -644,7 +642,7 @@ def _remove(
     n_samples, n_features = standardized.shape
     n_batch, p = gamma_star.shape[0], beta.shape[0]
     for lo in range(0, n_features, _BLOCK):
-        hi = n_features if n_features < lo + _BLOCK else lo + _BLOCK
+        hi = n_features if n_features < lo + _BLOCK else lo + _BLOCK  # noqa: FURB136
         scale_i, mean_i = scale[lo:hi], grand_mean[lo:hi]
         terms = covariate[: hi - lo]
         target = columns[lo:hi]
@@ -672,7 +670,7 @@ def _moments(standardized, order, sizes, n, mean, ss):
     """
     n_features = standardized.shape[1]
     for lo in range(0, n_features, _BLOCK):
-        hi = n_features if n_features < lo + _BLOCK else lo + _BLOCK
+        hi = n_features if n_features < lo + _BLOCK else lo + _BLOCK  # noqa: FURB136
         start = 0
         for b in range(sizes.size):
             stop = start + sizes[b]
@@ -812,9 +810,9 @@ def _weigh(
     for j in range(n.size):
         if delta_hat[j] > 0:
             # The builtin min compiles an overload per argument type.
-            low_norm = log_norm[j] if log_norm[j] < low_norm else low_norm
+            low_norm = log_norm[j] if log_norm[j] < low_norm else low_norm  # noqa: FURB136
             inv = 1 / delta_hat[j]
-            low_inv = inv if inv < low_inv else low_inv
+            low_inv = inv if inv < low_inv else low_inv  # noqa: FURB136
         c[j] = -(log_norm[j] + gamma_hat[j] ** 2 / delta_hat[j]) / 2
         u[j] = -0.5 / delta_hat[j]
         w[j] = gamma_hat[j] / delta_hat[j]
@@ -834,7 +832,7 @@ def _weigh(
             top = -np.inf
             for j in range(n.size):
                 log_lik = _log_lik(j, 0.0, n[i], q, r, c, u, w)
-                if log_lik > top:
+                if log_lik > top:  # noqa: PLR1730
                     top = log_lik
             total, gamma, delta = _sums(top, n[i], q, r, c, u, w, gamma_hat, delta_hat)
         c[i] = own
