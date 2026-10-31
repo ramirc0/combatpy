@@ -9,7 +9,10 @@ authors = [
     { name = "Christian Ramirez", email = "christian.ramirez1@umassmed.edu" }
 ]
 requires-python = ">=3.12"
-dependencies = ["numpy>=2"]
+dependencies = [
+    "numba>=0.68.0",
+    "numpy>=2",
+]
 
 [dependency-groups]
 dev = ["fastexcel", "pandas", "polars", "pytest", "ruff"]
